@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coursify - Track Your Learning Journey</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Decorative Background Patterns -->
+    <div class="bg-pattern bg-pattern-1">
+        <svg width="800" height="800" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+                    <circle cx="40" cy="40" r="2" fill="currentColor" opacity="0.3"/>
+                </pattern>
+            </defs>
+            <rect width="800" height="800" fill="url(#grid)"/>
+        </svg>
+    </div>
+    <div class="bg-pattern bg-pattern-2">
+        <svg width="800" height="800" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="dots" width="60" height="60" patternUnits="userSpaceOnUse">
+                    <circle cx="30" cy="30" r="1.5" fill="currentColor" opacity="0.3"/>
+                </pattern>
+            </defs>
+            <rect width="800" height="800" fill="url(#dots)"/>
+        </svg>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand" onclick="goToHome()" style="cursor: pointer;">
+            <i class="fas fa-graduation-cap"></i> Cours<span class="brand-accent">ify</span>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn-login" onclick="clearAllData()">
+                <i class="fas fa-trash"></i> Clear All
+            </button>
+            <button class="btn-register" onclick="exportProgress()">
+                <i class="fas fa-download"></i> Export Progress
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="heroSection">
+        <h1 class="hero-title">
+            Master Your <span class="title-gradient">Learning Journey</span>
+        </h1>
+        <p class="hero-subtitle">
+            Organize multiple subjects, break them into manageable tasks, and track your progress.<br>
+            Stay organized and motivated every step of the way.
+        </p>
+
+        <!-- Upload Section -->
+        <div class="url-input-container" id="uploadSection">
+            <div class="upload-area" id="uploadArea">
+                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                <h3>Upload Your Course Plan</h3>
+                <p>Format: Subject Name | Task (one per line)</p>
+                <input type="file" id="fileInput" accept=".txt,.md" hidden>
+                <button class="btn-shorten" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-file-upload"></i> Choose File
+                </button>
+            </div>
+            
+            <div class="manual-entry" style="margin-top: 2rem;">
+                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Or add subjects manually:</p>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem;">Format Options:</p>
+                <p style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 0.5rem;">
+                    <code style="background: var(--bg-tertiary); padding: 0.2rem 0.5rem; border-radius: 4px;">Subject | Topic | Subtopic</code> or 
+                    <code style="background: var(--bg-tertiary); padding: 0.2rem 0.5rem; border-radius: 4px;">Subject | Topic</code>
+                </p>
+                <textarea id="manualInput" class="manual-textarea" placeholder="DSA | Arrays | Two Pointer Technique&#10;DSA | Arrays | Sliding Window&#10;DSA | Strings | Pattern Matching&#10;Mathematics | Algebra | Linear Equations&#10;Mathematics | Algebra | Quadratic Equations"></textarea>
+                <button class="btn-shorten" onclick="processManualInput()" style="margin-top: 1rem;">
+                    <i class="fas fa-magic"></i> Create Plan
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Home Page - Subjects Overview -->
+    <section class="home-section" id="homeSection" style="display: none;">
+        <div class="home-header">
+            <h1 class="hero-title">
+                Your <span class="title-gradient">Subjects</span>
+            </h1>
+            <p class="hero-subtitle">
+                Select a subject to view and manage your tasks
+            </p>
+        </div>
+
+        <div class="subjects-grid" id="subjectsGrid">
+            <!-- Subject cards will be dynamically added here -->
+        </div>
+
+        <div class="home-actions">
+            <button class="btn-add-subject" onclick="showUploadPage()">
+                <i class="fas fa-plus-circle"></i> Add New Course/Subject
+            </button>
+            <button class="btn-view-all" onclick="viewAllTasks()">
+                <i class="fas fa-list"></i> View All Tasks
+            </button>
+        </div>
+    </section>
+
+    <!-- Course Progress Overview -->
+    <section class="progress-section" id="progressSection" style="display: none;">
+        <div class="progress-container">
+            <div class="progress-header">
+                <h2><i class="fas fa-chart-line"></i> Overall Progress</h2>
+                <div class="progress-stats">
+                    <div class="stat-item">
+                        <span class="stat-value" id="subjectCount">0</span>
+                        <span class="stat-label">Subjects</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="completedCount">0</span>
+                        <span class="stat-label">Completed</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="totalCount">0</span>
+                        <span class="stat-label">Total Tasks</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="percentageComplete">0%</span>
+                        <span class="stat-label">Complete</span>
+                    </div>
+                </div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <!-- Subject Filter -->
+        <div class="subject-filter-container">
+            <div class="filter-header">
+                <h3><i class="fas fa-filter"></i> Filter by Subject</h3>
+            </div>
+            <div class="subject-chips" id="subjectChips">
+                <!-- Subject chips will be dynamically added -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Course Plan Section -->
+    <section class="links-section" id="planSection" style="display: none;">
+        <div class="section-header">
+            <h2><i class="fas fa-list-check"></i> Your Course Plan</h2>
+            <div class="section-actions">
+                <button class="btn-add-task" onclick="showAddTaskModal()">
+                    <i class="fas fa-plus"></i> Add Task
+                </button>
+                <button class="btn-toggle-view" onclick="toggleViewMode()" id="viewToggleBtn">
+                    <i class="fas fa-th-list"></i> Hierarchical View
+                </button>
+            </div>
+        </div>
+        
+        <!-- Hierarchical View -->
+        <div class="hierarchical-view" id="hierarchicalView" style="display: none;">
+            <div id="hierarchicalContent">
+                <!-- Hierarchical content will be dynamically added here -->
+            </div>
+        </div>
+
+        <!-- Table View -->
+        <div class="table-view" id="tableView">
+            <table class="links-table">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">Status</th>
+                        <th style="width: 180px;">Subject</th>
+                        <th>Task/Module</th>
+                        <th style="width: 130px;">Priority</th>
+                        <th style="width: 130px;">Added On</th>
+                        <th style="width: 130px;">Completed</th>
+                        <th style="width: 100px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="planTableBody">
+                    <!-- Rows will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Add Task Modal -->
+    <div class="modal" id="addTaskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> Add New Task</h2>
+                <button class="modal-close" onclick="closeAddTaskModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form class="auth-form" onsubmit="addNewTask(event)">
+                <div class="form-group">
+                    <label for="taskSubject">Subject</label>
+                    <input type="text" id="taskSubject" list="subjectList" placeholder="e.g., DSA, Mathematics" required>
+                    <datalist id="subjectList">
+                        <!-- Existing subjects will be populated here -->
+                    </datalist>
+                </div>
+                <div class="form-group">
+                    <label for="taskTopic">Main Topic</label>
+                    <input type="text" id="taskTopic" list="topicList" placeholder="e.g., Arrays, Algebra">
+                    <datalist id="topicList">
+                        <!-- Existing topics will be populated here -->
+                    </datalist>
+                </div>
+                <div class="form-group">
+                    <label for="taskName">Subtopic/Task Name</label>
+                    <input type="text" id="taskName" placeholder="e.g., Two Pointer Technique" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskPriority">Priority</label>
+                    <select id="taskPriority" class="form-select">
+                        <option value="high">High</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-check"></i> Add Task
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Floating Action Buttons -->
+    <div class="fab-container">
+        <button class="fab-button" onclick="scrollToTop()" title="Scroll to Top">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
